@@ -8,7 +8,6 @@ from feature_extractor import FeatureExtractor
 
 app = Flask(__name__)
 
-offline_FeatureExtractor()
 # Read img features
 fe = FeatureExtractor()
 features = []
