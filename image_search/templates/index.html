@@ -15,8 +15,7 @@
             <h2>搜索结果：</h2>
             {% for score in scores %}
             <figure style="float: left; margin-right: 20px; margin-bottom: 20px;">
-                <img src="{{ score[1] }}" height="200px">
-                <figcaption>{{ score[0] }}</figcaption>
+                <img src="{{ score }}" height="200px">
             </figure>
             {% endfor %}
         </div>

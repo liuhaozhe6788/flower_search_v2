@@ -1,23 +1,27 @@
 from PIL import Image
-from pathlib import Path
 import numpy as np
 from datetime import datetime
 from flask import Flask, request, render_template
 
+from database import *
 from feature_extractor import FeatureExtractor
 
 app = Flask(__name__)
 
-# Read img features
-fe = FeatureExtractor()
-features = []
-img_paths = []
+n = 5
 
-# load features from .npy files and read img_paths
-for feature_path in Path("./static/feature").glob("*.npy"):
-    features.append(np.load(feature_path))
-    img_paths.append(Path("./static/img") / (feature_path.stem + ".jpeg"))
-features = np.array(features)
+# 从数据库读取所有的特征向量
+mydatabase = Database(mypassword=myPassword, database_name=myDatabase_name, tables_name=myTables_name)
+features = mydatabase.select_all_features(myTables_name[0])
+mydatabase.close()
+# print(features)
+
+# 将所有特征向量转换为二维numpy序列
+features_array = []
+for i in range(n):  # i = 0 ~ n-1
+    features_array.append(eval(features[i][0]))
+features_array = np.array(features_array)
+# print(features_array)
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -33,9 +37,12 @@ def index():
         # RUn search
         fe = FeatureExtractor()
         query = fe.extract(img=img)  # feature extract of uploaded img
-        dists = np.linalg.norm(features - query, axis=1)  # calc L2 distance
+        dists = np.linalg.norm(features_array - query, axis=1)  # calc L2 distance
         ids = np.argsort(dists)[0 : 2]  # sort dists return ids
-        scores = [(dists[id], img_paths[id]) for id in ids]
+        # print(ids)
+        mydatabase = Database(mypassword=myPassword, database_name=myDatabase_name, tables_name=myTables_name)
+        scores = [mydatabase.select_url(myTables_name[0], id + 1) for id in ids]
+        mydatabase.close()
         # return dists ad img path
         # print(scores)
 

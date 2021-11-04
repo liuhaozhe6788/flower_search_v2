@@ -32,7 +32,7 @@ class Database:
         self._databases_list = [x for x in self._mycursor]
         self._tables = tables_name
         self._tables_list_in_database = None
-        print("class initialized")
+        print("database class initialized")
 
     def close(self):
         self._mycursor.close()
@@ -63,6 +63,11 @@ class Database:
     def select_url(self, table_name: str, iter_id: int):
         self._mycursor.execute(f"select img_url from {table_name} where id = {iter_id}")
         return self._mycursor.fetchone()[0]
+
+    # 选择所有图片的特征向量
+    def select_all_features(self, table_name: str):
+        self._mycursor.execute(f"select feature from {table_name}")
+        return self._mycursor.fetchall()
 
     # 打印某张表的所有数据
     def data(self, table_name: str, table_headers: list):

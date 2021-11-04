@@ -3,9 +3,9 @@ from database import *
 myPassword = 'lfd6788'
 myDatabase_name = 'flower_data'
 myTables_name = ['flower_imgs']
+newDatabase = Database(mypassword=myPassword, database_name=myDatabase_name, tables_name=myTables_name)
 
-def loaddata():
-    newDatabase = Database(mypassword=myPassword, database_name=myDatabase_name, tables_name=myTables_name)
+def loaddata(newDatabase):
     newDatabase.create_table(myTables_name[0])
     print(newDatabase.databases)
     print(newDatabase.tables)
@@ -25,4 +25,4 @@ def loaddata():
     return newDatabase
 
 if __name__ == "__main__":
-    loaddata()
+    loaddata(newDatabase)
