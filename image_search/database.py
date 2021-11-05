@@ -7,7 +7,7 @@ myPassword = 'lfd6788'
 myDatabase_name = 'flower_data'
 myTables_name = ['flower_imgs']
 
-flowers_map = {
+flowers_mapper = {
     'rose': 0,
     'camelia': 1,
     'sunflower': 2,
@@ -64,9 +64,19 @@ class Database:
         self._mycursor.execute(f"select img_url from {table_name} where id = {iter_id}")
         return self._mycursor.fetchone()[0]
 
+    # 选择图片的result信息
+    def select_result(self, table_name: str, iter_id: int):
+        self._mycursor.execute(f"select result from {table_name} where id = {iter_id}")
+        return self._mycursor.fetchone()[0]
+
     # 选择所有图片的特征向量
     def select_all_features(self, table_name: str):
         self._mycursor.execute(f"select feature from {table_name}")
+        return self._mycursor.fetchall()
+
+    # 选择某种花卉的所有图片
+    def select_all_imgs_of_a_class(self, table_name: str, flower_class: int):
+        self._mycursor.execute(f"select img_url from {table_name} where result = {flower_class}")
         return self._mycursor.fetchall()
 
     # 打印某张表的所有数据
@@ -107,5 +117,6 @@ if __name__ == "__main__":
     newDatabase.insert_np_array(myTables_name[0], np.array([1, 2, 3, 4]), 0)
     print(newDatabase.data(myTables_name[0], ['img_id', 'img_url', 'flower_class', 'img_vector']))
     print(newDatabase.select_url(myTables_name[0], 1))
+    print(newDatabase.select_result(myTables_name[0], 4))
     newDatabase.close()
 

@@ -6,11 +6,12 @@ from database import *
 
 from feature_extractor import FeatureExtractor
 
-n = 5
+n = 15
 fe = FeatureExtractor()
 mydatabase = Database(mypassword=myPassword, database_name=myDatabase_name, tables_name=myTables_name)
 # print(mydatabase.data(myTables_name[0], ['img_id', 'img_url', 'flower_class', 'img_vector']))
 for i in range(n):
+    # print(i)
     # 从数据库取出图片的url
     img_url = mydatabase.select_url(myTables_name[0], i + 1)
     # print(img_url)

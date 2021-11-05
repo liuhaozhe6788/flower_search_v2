@@ -1,11 +1,11 @@
 from tensorflow.keras.preprocessing import image
-from tensorflow.keras.applications.vgg16 import VGG16, preprocess_input
+from tensorflow.keras.applications.vgg19 import VGG19, preprocess_input
 from tensorflow.keras.models import Model
 import numpy as np
 
 class FeatureExtractor:
     def __init__(self):
-        self.base_model = VGG16(weights="imagenet")
+        self.base_model = VGG19(weights="imagenet")
         self.model = Model(inputs=self.base_model.input, outputs=self.base_model.get_layer("fc1").output)
 
     def extract(self, img):

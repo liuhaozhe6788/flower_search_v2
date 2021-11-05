@@ -8,7 +8,16 @@ from feature_extractor import FeatureExtractor
 
 app = Flask(__name__)
 
-n = 5
+n = 15
+num_class = 5
+m = int(n/num_class)
+flowers_demapper = {
+    0: '玫瑰',
+    1: '山茶花',
+    2: '向日葵',
+    3: '茉莉',
+    4: '菊花'
+}
 
 # 从数据库读取所有的特征向量
 mydatabase = Database(mypassword=myPassword, database_name=myDatabase_name, tables_name=myTables_name)
@@ -28,25 +37,37 @@ def index():
     if request.method == "POST":
         file = request.files["query_img"]
 
-        # Save query img
+        # 保存上传的图片
         img = Image.open(file.stream)  # PIL image
         uploaded_img_path = "static/uploaded/" + \
                             datetime.now().isoformat().replace(":", ".") + "_" + file.filename  # create img path
         img.save(uploaded_img_path)  # save the image to the path
 
-        # RUn search
+        # 运行搜索
         fe = FeatureExtractor()
         query = fe.extract(img=img)  # feature extract of uploaded img
         dists = np.linalg.norm(features_array - query, axis=1)  # calc L2 distance
-        ids = np.argsort(dists)[0 : 2]  # sort dists return ids
+        # print(len(dists))
+        ids = np.argsort(dists)[0 : m]  # sort dists return ids
         # print(ids)
+
+        freq = np.zeros(num_class)
         mydatabase = Database(mypassword=myPassword, database_name=myDatabase_name, tables_name=myTables_name)
-        scores = [mydatabase.select_url(myTables_name[0], id + 1) for id in ids]
+        for id in ids:
+            for i in range(num_class):
+                if mydatabase.select_result(myTables_name[0], id + 1) == i:
+                    freq[i] += 1
+        print(freq)
+        result_id = np.argmax(freq)
+        result = flowers_demapper[np.argmax(freq)]
+        print(f"the flower is {result}")
+        mydatabase = Database(mypassword=myPassword, database_name=myDatabase_name, tables_name=myTables_name)
+        # print(mydatabase.select_all_imgs_of_a_class(myTables_name[0], 1)[2][0])
+        scores = [mydatabase.select_all_imgs_of_a_class(myTables_name[0], result_id)[i][0] for i in range(min(m, 5))]
         mydatabase.close()
-        # return dists ad img path
         # print(scores)
 
-        return render_template("index.html", query_path=uploaded_img_path, scores=scores)
+        return render_template("index.html", query_path=uploaded_img_path, variable=result, scores=scores)
     else:
         return render_template("index.html")
 
