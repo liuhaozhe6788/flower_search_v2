@@ -1,24 +1,21 @@
 import mysql.connector
 import numpy as np
-import pickle
 from tabulate import tabulate
 
 myPassword = 'lfd6788'
 myDatabase_name = 'flower_data'
 myTables_name = ['flower_imgs']
 
-flowers_mapper = {
-    'rose': 0,
-    'camelia': 1,
-    'sunflower': 2,
-    'jasmine': 3,
-    'chrysanthemum': 4
-}
 
 class Database:
 
-    # 私有变量初始化
     def __init__(self, mypassword, database_name=None, tables_name=[]):
+        """
+        私有变量初始化，建立MySQL的连接，并建立cursor
+        :param mypassword: 访问MySQL的密码
+        :param database_name: 数据库的名称
+        :param tables_name: 该数据库中所有表格的名称
+        """
         self._password = mypassword
         self._mydb = mysql.connector.connect(
             host='localhost',
@@ -35,66 +32,115 @@ class Database:
         print("database class initialized")
 
     def close(self):
+        """
+        断开MySQL连接
+        :return:
+        """
         self._mycursor.close()
         self._mydb.close()
 
-    # 创建表格
     def create_table(self, table_name: str):
+        """
+        创建表格
+        :param table_name: 表格名称
+        :return:
+        """
         self._mycursor.execute(f"create table if not exists {table_name} (id int not null auto_increment, img_url varchar(255), \
                          result int unsigned, feature longtext not null, primary key (id))")
         self._mydb.commit()
         self._mycursor.execute("show tables")
         self._tables_list_in_database = [x for x in self._mycursor]
 
-    # 插入一行信息
     def insert_img_info(self, table_name: str, val: tuple):
+        """
+        插入一行信息
+        :param table_name: 表格名称
+        :param val: 一行信息
+        :return:
+        """
         sql = f"insert into {table_name} (img_url, result, feature) values (%s, %s, %s)"
         self._mycursor.execute(sql, val)
         self._mydb.commit()
 
-    # 插入图片的特征向量
     def insert_np_array(self, table_name: str, vector: np.ndarray, iter_id: int):
+        """
+        插入图片的特征向量
+        :param table_name: 表格名称
+        :param vector: 特征向量
+        :param iter_id: 插入行的位置
+        :return:
+        """
         sql = f"update {table_name} set feature = %s where id = {iter_id}"
         val = str(vector.tolist())
         self._mycursor.execute(sql, (val, ))
         self._mydb.commit()
 
-    # 选择图片的url信息
-    def select_url(self, table_name: str, iter_id: int):
+    def select_url(self, table_name: str, iter_id: int) -> str:
+        """
+        选择一张图片的URl信息
+        :param table_name:表格名称
+        :param iter_id: 选择行的位置
+        :return:URL信息
+        """
         self._mycursor.execute(f"select img_url from {table_name} where id = {iter_id}")
         return self._mycursor.fetchone()[0]
 
-    # 选择图片的result信息
-    def select_result(self, table_name: str, iter_id: int):
+    def select_result(self, table_name: str, iter_id: int) -> str:
+        """
+        选择一张图片的result信息
+        :param table_name: 表格名称
+        :param iter_id: 选择行的位置
+        :return: 花卉种类结果
+        """
         self._mycursor.execute(f"select result from {table_name} where id = {iter_id}")
         return self._mycursor.fetchone()[0]
 
-    # 选择所有图片的特征向量
-    def select_all_features(self, table_name: str):
+    def select_all_features(self, table_name: str) -> list:
+        """
+        选择所有图片的特征向量
+        :param table_name: 表格名称
+        :return: 所有特征向量
+        """
         self._mycursor.execute(f"select feature from {table_name}")
         return self._mycursor.fetchall()
 
-    # 选择某种花卉的所有图片
-    def select_all_imgs_of_a_class(self, table_name: str, flower_class: int):
+    def select_all_imgs_of_a_class(self, table_name: str, flower_class: int) -> list:
+        """
+        选择某种花卉的所有图片
+        :param table_name: 表格名称
+        :param flower_class: 花卉的种类
+        :return: 某种花卉的所有图片URL
+        """
         self._mycursor.execute(f"select img_url from {table_name} where result = {flower_class}")
         return self._mycursor.fetchall()
 
-    # 打印某张表的所有数据
-    def data(self, table_name: str, table_headers: list):
+    def data(self, table_name: str, table_headers: list) -> str:
+        """
+        打印某张表的所有数据
+        :param table_name: 表格名称
+        :param table_headers: 表头
+        :return: 表格数据
+        """
         import copy
         self._mycursor.execute(f"select * from {table_name}")
         results = self._mycursor.fetchall()
         return copy.deepcopy(str(tabulate(results, headers=table_headers, tablefmt='psql')))
 
-    # 获得所有数据库的名称
     @property
-    def databases(self):
+    def databases(self) -> str:
+        """
+        获得所有数据库的名称
+        :return: 所有数据库的名称
+        """
         import copy
         return copy.deepcopy(str(self._databases_list))
 
-    # 获得本数据库flower_data的所有表格的名称
     @property
-    def tables(self):
+    def tables(self) -> str:
+        """
+        获得本数据库flower_data的所有表格的名称
+        :return: 本数据库flower_data的所有表格的名称
+        """
         import copy
         return copy.deepcopy(str(self._tables_list_in_database))
 
