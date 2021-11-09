@@ -2,7 +2,7 @@ from PIL import Image
 import requests
 from io import BytesIO
 
-from flower_spider import num_imgs
+from flower_spider_bing import num_imgs
 from database import myPassword, myDatabase_name, myTables_name, Database
 
 from feature_extractor import FeatureExtractor

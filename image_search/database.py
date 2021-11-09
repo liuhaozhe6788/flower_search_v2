@@ -6,6 +6,26 @@ myPassword = 'lfd6788'
 myDatabase_name = 'flower_data'
 myTables_name = ['flower_imgs']
 
+flowers_demapper = {
+    1: '向日葵',
+    2: '梅花',
+    3: '牡丹',
+    4: '兰花',
+    5: '桂花',
+    6: '水仙花',
+    7: '玫瑰',
+    8: '菊花',
+    9: '凤仙花',
+    10: '郁金香',
+    11: '马蹄莲',
+    12: '蝴蝶兰',
+    13: '扶桑花',
+    14: '山茶花',
+    15: '栀子花',
+    16: '杜鹃花',
+    17: '灯笼花',
+    18: '玉兰花',
+}
 
 class Database:
 
@@ -29,7 +49,7 @@ class Database:
         self._databases_list = [x for x in self._mycursor]
         self._tables = tables_name
         self._tables_list_in_database = None
-        print("database class initialized")
+        # print("database class initialized")
 
     def close(self):
         """
