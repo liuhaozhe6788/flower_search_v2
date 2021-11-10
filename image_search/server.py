@@ -24,6 +24,7 @@ for i in range(num_imgs):  # i = 0 ~ n-1
 features_array = np.array(features_array)
 # print(np.shape(features_array))
 
+fe = FeatureExtractor()
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -41,10 +42,9 @@ def index():
         img.save(uploaded_img_path)
 
         # 运行搜索
-        fe = FeatureExtractor()
         query = fe.extract(img=img)  # feature extract of uploaded img
         # dists = (features_array@query.T)/(np.linalg.norm(features_array, axis=1) * np.linalg.norm(features_array))
-        dists = np.sum(np.abs(features_array - query), axis=1) # calc Manhattan distance
+        dists = np.sum(np.abs(features_array - query), axis=1)  # calc Manhattan distance
         # dists = np.linalg.norm(features_array - query, axis=1)  # calc L2 distance
         # print(len(dists))
         ids = np.argsort(dists)[0: 20]  # sort dists return ids
@@ -56,6 +56,7 @@ def index():
         for _id in ids:
             freq[int(mydatabase.select_result(myTables_name[0], _id + 1)) - 1] += 1
         print(freq)
+        mydatabase.close()
 
         # 将频率最高的花卉名称作为识别结果
         result_id = np.argmax(freq)
